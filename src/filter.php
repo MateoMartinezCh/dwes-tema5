@@ -93,6 +93,7 @@ echo <<<END
             <li><a href="index.php">Home</a></li>
             <li><strong>Filtrar imágenes</strong></li>
             <li><a href="signup.php">Regístrate</a></li>
+            <li><a href="login.php">Inicia sesión</a></li>
         </ul>
     END;
 ?>

@@ -19,6 +19,27 @@ session_start();
 if (isset($_SESSION['usuario'])) {
     header('location: index.php');
     exit();
+}/*
+function existeUsuario(string $nombre, mysqli $mysqli): bool
+{
+    $resultado = $mysqli->query("select * from usuario where nombre=$nombre");
+    $resultado ? $existe = true : $existe = false;
+
+    return $existe;
+}  */
+function insertarUsuario(string $nombre, string $claveencriptada, mysqli $mysqli): bool
+{
+    $sehainsertadousuario = false;
+    /*  if (!existeUsuario($nombre, $mysqli)) {
+        $mysqli->query("Insert into usuario (nombre,clave)values ('$nombre','$claveencriptada')");
+        $sehainsertadousuario = true;
+    } */
+    $mysqli->query("Insert into usuario (nombre,clave)values ('$nombre','$claveencriptada')");
+
+    if (!$mysqli->error) {
+        $sehainsertadousuario = true;
+    }
+    return $sehainsertadousuario;
 }
 /**********************************************************************************************************************
  * Lógica del programa
@@ -67,20 +88,12 @@ if ($_POST && isset($_POST['nombre']) && isset($_POST['clave']) && isset($_POST[
         }
     }
 }
-function insertarUsuario(string $nombre, string $claveencriptada, mysqli $mysqli): bool
-{
-    $sehainsertadousuario = false;
-    $mysqli->query("Insert into usuario (nombre,clave)values ('$nombre','$claveencriptada')");
-    if (!$mysqli->error) {
-        $sehainsertadousuario = true;
-    }
-    return $sehainsertadousuario;
-}
+
 /*********************************************************************************************************************
  * Salida HTML
  * 
  * Tareas a realizar en la vista:
- * !- TODO: los errores que se produzcan tienen que aparecer debajo de los campos.(AHORA MISMO ME SALEN AL LADO)
+ * *- TODO: los errores que se produzcan tienen que aparecer debajo de los campos.(AHORA MISMO ME SALEN AL LADO)
  * *- TODO: cuando hay errores en el formulario se debe mantener el valor del nombre de usuario en el campo
  *         correspondiente.
  */
@@ -108,8 +121,9 @@ function insertarUsuario(string $nombre, string $claveencriptada, mysqli $mysqli
         <h1>Galería de imágenes</h1>
         <ul>
             <li><a href="index.php">Home</a></li>
-            <li><strong>Filtrar imágenes</strong></li>
-            <li><a href="signup.php">Regístrate</a></li>
+            <li><a href="filter.php">Filtrar imágenes</a></li>
+            <li><strong>Regístrate</strong></li>
+            <li><a href="login.php">Inicia sesión</a></li>
         </ul>
         END; ?>
         <h1>Regístrate</h1>
@@ -138,7 +152,7 @@ function insertarUsuario(string $nombre, string $claveencriptada, mysqli $mysqli
         </form>
     <?php } else {
 
-        echo "<h1>Te has registrado correctamente.</h1>";
-        echo "<h2><a href='index.php'>Ir de vuelta al inicio</a></h2>";
+        echo "<h3>Te has registrado correctamente.</h3>";
+        echo "<h5><a href='index.php'>Ir de vuelta al inicio</a></h5>";
     } ?>
 </body>

@@ -36,15 +36,21 @@ if (isset($_SESSION['usuario'])) {
  * * TODO: añadir el menú.
  * * TODO: formulario con nombre de usuario y contraseña.
  */
+echo '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">';
 ?>
-<main>
-    <ul>
-        <li><strong>Home</strong></li>
-        <li><a href="add.php">Añadir imagen</a></li>
-        <li><a href="filter.php">Filtrar imágenes</a></li>
-        <li><a href="signup.php">Cerrar sesión ($usuario)</a></li>
-    </ul>
 
+<main>
+    <?php
+    echo <<<END
+    <h1>Galería de imágenes</h1>
+        <ul>
+            <li><a href="index.php">Home</a></li>
+            <li><a href="filter.php">Filtrar imágenes</a></li>
+            <li><a href="signup.php">Regístrate</a></li>
+            <li><strong>Inicia sesión</strong></li>
+        </ul>
+    END;
+    ?>
     <h1>Inicia sesión</h1>
     <?php
     if ($_POST) {
