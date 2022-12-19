@@ -23,9 +23,9 @@ if (!$resultado) {
  * Salida HTML
  */
 echo '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">';
+echo '<h1>Galería de imágenes</h1>';
 if ($usuario == null) {
     echo <<<END
-    <h1>Galería de imágenes</h1>
         <ul>
             <li><strong>Home</strong></li>
             <li><a href="filter.php">Filtrar imágenes</a></li>
@@ -39,7 +39,7 @@ if ($usuario == null) {
             <li><strong>Home</strong></li>
             <li><a href="add.php">Añadir imagen</a></li>
             <li><a href="filter.php">Filtrar imágenes</a></li>
-            <li><a href="signup.php">Cerrar sesión ($usuario)</a></li>
+            <li><a href="logout.php">Cerrar sesión ($usuario)</a></li>
         </ul>
     END;
 }

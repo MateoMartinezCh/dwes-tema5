@@ -1,4 +1,5 @@
 <?php
+
 /**********************************************************************************************************************
  * Este es el script que añade imágenes en la base de datos. En la tabla "imagen" de la base de datos hay que guardar
  * el nombre que viene vía POST, la ruta de la imagen como se indica más abajo, la fecha de la inserción (función
@@ -11,7 +12,7 @@
  * - Las imágenes se subirán a la carpeta llamada "imagenes/" que ves en el proyecto.
  * - En la base de datos guardaremos la ruta relativa en el campo "ruta" de la tabla "imagen".
  * 
- * Así, si llega por POST una imagen PNG y le asignamosel nombre "imagen1", entonces en el campo "ruta" de la tabla
+ * Así, si llega por POST una imagen PNG y le asignamos el nombre "imagen1", entonces en el campo "ruta" de la tabla
  * "imagen" de la base de datos se guardará el valor "imagenes/imagen1.png".
  * 
  * Como siempre:
@@ -26,9 +27,34 @@
  * 
  * NO VAMOS A CONTROLAR SI YA EXISTE UNA IMAGEN CON ESE NOMBRE. SI EXISTE, SE SOBREESCRIBIRÁ Y YA ESTÁ.
  * 
- * A ESTE SCRIPT SOLO SE PUEDE ACCEDER SI HAY UN USARIO LOGEADO.
+ * *A ESTE SCRIPT SOLO SE PUEDE ACCEDER SI HAY UN USARIO LOGEADO.
  */
+session_start();
+//si el usuario no está logeado, ¿qué hace aquí? Lo echamos.
+if (!isset($_SESSION['usuario'])) {
+    header('location: index.php');
+    exit();
+}
+function imprimirFormulario($errornombre = "", $errorarchivo = "", $nombre = ""): void
+{
+    echo <<<END
+    <form method="post" enctype="multipart/form-data">
+        <p>
+            <label for="nombre">Nombre</label>
+            <input type="text" name="nombre" id="nombre">
+        </p>
 
+        <p>
+            <label for="imagen">Imagen</label>
+            <input type="file" name="imagen" id="imagen">
+        </p>
+
+        <p>
+            <input type="submit" value="Añadir">
+        </p>
+    </form>
+    END;
+}
 /**********************************************************************************************************************
  * Lógica del programa
  * 
@@ -47,20 +73,18 @@
  * TODO: añadir los errores que se produzcan cuando se envíe el formulario debajo de los campos.
  */
 ?>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
 <h1>Galería de imágenes</h1>
-
-<form method="post" enctype="multipart/form-data">
-    <p>
-        <label for="nombre">Nombre</label>
-        <input type="text" name="nombre" id="nombre">
-    </p>
-
-    <p>
-        <label for="imagen">Imagen</label>
-        <input type="file" name="imagen" id="imagen">
-    </p>
-
-    <p>
-        <input type="submit" value="Añadir">
-    </p>
-</form>
+<?php if (!$_POST/* || $errornombre !="" || $errorarchivo !="" */) {
+    echo <<<END
+    <ul>
+        <li><a href=index.php>Home</a></li>
+        <li><strong>Añadir imagen</strong></li>
+        <li><a href="filter.php">Filtrar imágenes</a></li>
+        <li><a href="logout.php">Cerrar sesión ({$_SESSION['usuario']})</a></li>
+    </ul>
+    <h2>Añade tu imágen!</h2>
+    END;
+    imprimirFormulario();
+}
+?>

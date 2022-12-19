@@ -52,8 +52,6 @@ if ($mysqli->connect_errno) {
     echo "Fallo al conectar a MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
     exit();
 }
-if ($mysqli->affected_rows > 0) {
-}
 $errornombre = '';
 $errorclave = '';
 $errorclaverepetida = '';

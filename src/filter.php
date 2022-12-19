@@ -1,7 +1,7 @@
 <?php
 
 /*********************************************************************************************************************
- * ? Este script muestra un formulario a través del cual se pueden buscar imágenes por el nombre y mostrarlas. Utiliza
+ * Este script muestra un formulario a través del cual se pueden buscar imágenes por el nombre y mostrarlas. Utiliza
  * el operador LIKE de SQL para buscar en el nombre de la imagen lo que llegue por $_GET['nombre'].
  * 
  * Evidentemente, tienes que controlar si viene o no por GET el valor a buscar. Si no viene nada, muestra el formulario
@@ -58,7 +58,7 @@ function filtra(String $texto): array
     return $vuelta;
 }
 /**********************************************************************************************************************
- * ? Lógica del programa
+ * Lógica del programa
  * 
  * Tareas a realizar:
  * - TODO: tienes que realizar toda la lógica de este script
@@ -77,7 +77,7 @@ if ($_GET && isset($_GET['nombre'])) {
 
 <?php
 /*********************************************************************************************************************
- * ? Salida HTML
+ * Salida HTML
  * 
  * Tareas a realizar:
  * - TODO: completa el código de la vista añadiendo el menú de navegación.

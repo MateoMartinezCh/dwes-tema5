@@ -16,3 +16,5 @@ if (!isset($_SESSION['usuario'])) {
  * TODO: tienes que realizar toda la lógica de este script
  */
 session_destroy();
+echo "<h1>Sesión cerrada correctamente</h1>";
+echo "<a href='index.php'>Vuelve a la página principal</a>";

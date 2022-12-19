@@ -16,7 +16,7 @@
  * UN USUARIO LOGEADO NO PUEDE ACCEDER A ESTE SCRIPT.
  */
 session_start();
-//si el usuario está logeado, ¿qué hace aquí Lo echamos.
+//si el usuario está logeado, ¿qué hace aquí? Lo echamos.
 if (isset($_SESSION['usuario'])) {
     header('location: index.php');
     exit();
@@ -27,8 +27,65 @@ if (isset($_SESSION['usuario'])) {
  * Tareas a realizar:
  * TODO: tienes que realizar toda la lógica de este script
  */
+$error = "";
+if ($_POST && isset($_POST['usuario']) && isset($_POST['clave'])) {
+    $usuario = htmlspecialchars(trim($_POST['usuario']));
+    $clave = htmlspecialchars(trim($_POST['clave']));
+    //conexión con mysqli
+    $mysqli = new mysqli("db", "dwes", "dwes", "dwes", 3306);
+    if ($mysqli->connect_errno) {
+        echo "No hay conexión con la base de datos";
+        exit();
+    }
+    // Preparamos la consulta
+    $sentencia = $mysqli->prepare("SELECT nombre,clave from usuario where nombre = ?");
+    if (!$sentencia) {
+        echo "Error: " . $mysqli->error;
+        $mysqli->close();
+        exit();
+    }
+    // Bindeamos
+    $valor = $usuario;
+    $vinculo = $sentencia->bind_param("s", $valor);
+    if (!$vinculo) {
+        echo "Error al vincular: " . $mysqli->error;
+        $sentencia->close();
+        $mysqli->close();
+        exit();
+    }
 
-
+    // EJECUTAMOS
+    $ejecucion = $sentencia->execute();
+    if (!$ejecucion) {
+        echo "Error al ejecutar la sentencia: " . $mysqli->error;
+        $sentencia->close();
+        $mysqli->close();
+        exit();
+    }
+    // Recuperamos las filas obtenidas como resultado
+    $resultado = $sentencia->get_result();
+    if (!$resultado) {
+        echo "Error al obtener los resultados: " . $mysqli->error;
+        $sentencia->close();
+        $mysqli->close();
+        exit();
+    }
+    //Sacamos esos dos datos obtenidos de la consulta y comparamos con los obtenidos por post
+    //Si ambas son iguales, ese usuario existe y le podemos logear
+    if (($fila = $resultado->fetch_assoc()) != null) {
+        if ($fila['nombre'] == $usuario && password_verify($clave, $fila['clave'])) {
+            $_SESSION['usuario'] = $usuario;
+            echo "<h1>Te has logueado correctamente</h1>";
+            echo "<a href='index.php'>Vuelve a la página principal</a>";
+            exit();
+            // Aquí haría header location index pero creo que de esta forma 
+            // es más legible para el usuario
+        }
+    }
+    $sentencia->close();
+    $resultado->free();
+    $mysqli->close();
+}
 /*********************************************************************************************************************
  * Salida HTML
  * 
