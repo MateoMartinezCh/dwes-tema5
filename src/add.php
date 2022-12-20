@@ -35,32 +35,113 @@ if (!isset($_SESSION['usuario'])) {
     header('location: index.php');
     exit();
 }
-function imprimirFormulario($errornombre = "", $errorarchivo = "", $nombre = ""): void
-{
-    echo <<<END
-    <form method="post" enctype="multipart/form-data">
-        <p>
-            <label for="nombre">Nombre</label>
-            <input type="text" name="nombre" id="nombre">
-        </p>
-
-        <p>
-            <label for="imagen">Imagen</label>
-            <input type="file" name="imagen" id="imagen">
-        </p>
-
-        <p>
-            <input type="submit" value="Añadir">
-        </p>
-    </form>
-    END;
-}
 /**********************************************************************************************************************
  * Lógica del programa
  * 
  * Tareas a realizar:
  * TODO: tienes que desarrollar toda la lógica de este script.
  */
+function imprimirFormulario($errornombre, $errorarchivo, $nombre): void
+{
+    echo <<<END
+    <form method="post" enctype="multipart/form-data">
+        <p>
+            <label for="nombre">Nombre</label>
+            <input type="text" name="nombre" id="nombre" value="$nombre">
+        </p>
+        $errornombre
+        <p>
+            <label for="imagen">Imagen</label>
+            <input type="file" name="imagen" id="imagen">
+        </p>
+        $errorarchivo
+        <p>
+            <input type="submit" value="Añadir">
+        </p>
+    </form>
+    END;
+}
+$errornombre = "";
+$errorarchivo = "";
+if ($_POST) {
+    //PREPARAMOS TODO PARA SUBIR EL ARCHIVO A EL SERVIDOR
+    $validarfichero = $_FILES && isset($_FILES['imagen']) &&
+        $_FILES['imagen']['error'] === UPLOAD_ERR_OK &&
+        $_FILES['imagen']['size'] > 0;
+
+    if (isset($_POST['nombre']) && mb_strlen($_POST['nombre'] > 0) && $_POST['nombre'] != " ") {
+        $nombresano = htmlspecialchars(trim($_POST['nombre']));
+        if ($validarfichero) {
+            $permitidos = array("png", "jpg");
+            $extension = pathinfo($_FILES['imagen']['name'], PATHINFO_EXTENSION);
+            $mimesPermitidos = array("image/png", "image/jpeg", "image/jpg");
+            $fichero = $_FILES['imagen']['tmp_name'];
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime_fichero = finfo_file($finfo, $fichero);
+            if (in_array($extension, $permitidos) && in_array($mime_fichero, $mimesPermitidos)) {
+                $_FILES['imagen']['name'] = $nombresano . "." . $extension;
+                $rutaFicheroDestino = './imagenes/' . basename($_FILES['imagen']['name']);
+            } else {
+                $errorarchivo = "<div class='alert alert-danger'>Extensión de archivo incorrecta</div>";
+            }
+        } else {
+            $errorarchivo = "<div class='alert alert-danger'>No hay archivo</div>";
+        }
+    } else {
+        $errornombre = "<div class='alert alert-danger'>El nombre está vacío</div>";
+        $errorarchivo = $validarfichero ? "" : "<div class='alert alert-danger'>No hay archivo</div>";
+    }
+    //SI TODO HA IDO BIEN AÑADIMOS REGISTRO A LA BASE DE DATOS Y SUBIREMOS EL FICHERO
+    if ($errorarchivo == "" && $errornombre == "") {
+
+        //conexión con mysqli
+        $mysqli = new mysqli("db", "dwes", "dwes", "dwes", 3306);
+        if ($mysqli->connect_errno) {
+            echo "No hay conexión con la base de datos";
+            exit();
+        }
+        // Preparamos la consulta
+        $sentencia = $mysqli->prepare("INSERT INTO imagen (nombre,ruta,subido,usuario) values (?,?,?,?)");
+        if (!$sentencia) {
+            echo "Error: " . $mysqli->error;
+            $mysqli->close();
+            exit();
+        }
+        // Bindeamos
+        $id = $_SESSION['id'];
+        $nombre = $nombresano;
+        $tiempo = "UNIX_TIMESTAMP()";
+        $ruta = $rutaFicheroDestino;
+        $vinculo = $sentencia->bind_param("ssis", $nombre, $ruta, $tiempo, $id);
+        if (!$vinculo) {
+            echo "Error al vincular: " . $mysqli->error;
+            $sentencia->close();
+            $mysqli->close();
+            exit();
+        }
+
+        // EJECUTAMOS
+        $ejecucion = $sentencia->execute();
+        if (!$ejecucion) {
+            echo "Error al ejecutar la sentencia: " . $mysqli->error;
+            $sentencia->close();
+            $mysqli->close();
+            exit();
+        }
+        //Cerramos la sentencia y liberamos recurso
+        $sentencia->close();
+        // También se cierra la conexión con la base de datos a través del objeto mysqli
+        $mysqli->close();
+
+        //SI TODO HA IDO BIEN LLEGAREMOS HASTA AQUÍ DONDE SUBIREMOS FINALMENTE EL FICHERO AL SERVIDOR
+        move_uploaded_file($_FILES['imagen']['tmp_name'], $rutaFicheroDestino);
+        echo "<h1>El fichero se ha subido correctamente</h1>";
+        echo "<a href='index.php'>¡Vuelve al índice para verlo!</a></br>";
+        echo "<a href='filter.php'>¡O búscalo por nombre en nuestro buscador!</a>";
+        exit();
+    }
+}
+
 
 
 /*********************************************************************************************************************
@@ -75,7 +156,7 @@ function imprimirFormulario($errornombre = "", $errorarchivo = "", $nombre = "")
 ?>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
 <h1>Galería de imágenes</h1>
-<?php if (!$_POST/* || $errornombre !="" || $errorarchivo !="" */) {
+<?php {
     echo <<<END
     <ul>
         <li><a href=index.php>Home</a></li>
@@ -85,6 +166,6 @@ function imprimirFormulario($errornombre = "", $errorarchivo = "", $nombre = "")
     </ul>
     <h2>Añade tu imágen!</h2>
     END;
-    imprimirFormulario();
+    imprimirFormulario($errornombre, $errorarchivo, isset($_POST['nombre']) ? htmlspecialchars(trim($_POST['nombre'])) : "");
 }
 ?>

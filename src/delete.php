@@ -25,6 +25,11 @@
 
 session_start();
 
+if (!isset($_SESSION['usuario'])) {
+    header('location: index.php');
+    exit();
+}
+
 $mysqli = new mysqli("db", "dwes", "dwes", "dwes", 3306);
 if ($mysqli->connect_errno) {
     echo "Fallo al conectar a MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
@@ -41,7 +46,7 @@ if ($_GET && isset($_GET['id'])) {
         if ($mysqli->affected_rows > 0) {
             $mysqli->close();
             //Borramos el fichero
-            unlink(".$rutaimagen");
+            unlink("$rutaimagen");
         } else {
             //Error porque no hay ninguna imagen con ese ID en la base
             header("location:index.php");

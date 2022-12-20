@@ -10,6 +10,8 @@
  * 
  * El valor a buscar se tiene que mantener en el formulario.
  */
+session_start();
+$usuario = $_SESSION && isset($_SESSION['usuario']) ? htmlspecialchars($_SESSION['usuario']) : null;
 
 function filtra(String $texto): array
 {
@@ -84,11 +86,10 @@ if ($_GET && isset($_GET['nombre'])) {
  * - TODO: en el formulario falta añadir el nombre que se puso cuando se envió el formulario.
  * - TODO: debajo del formulario tienen que aparecer las imágenes que se han encontrado en la base de datos.
  */
-
-echo <<<END
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
-
-        <h1>Galería de imágenes</h1>
+echo '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">';
+echo '<h1>Galería de imágenes</h1>';
+if ($usuario == null) {
+    echo <<<END
         <ul>
             <li><a href="index.php">Home</a></li>
             <li><strong>Filtrar imágenes</strong></li>
@@ -96,6 +97,16 @@ echo <<<END
             <li><a href="login.php">Inicia sesión</a></li>
         </ul>
     END;
+} else {
+    echo <<<END
+    <ul>
+        <li><a href="index.php">Home</a></li>
+        <li><a href="add.php">Añadir imagen</a></li>
+        <li><strong>Filtrar imágenes</strong></li>
+        <li><a href="logout.php">Cerrar sesión ($usuario)</a></li>
+    </ul>
+    END;
+}
 ?>
 
 <h2>Busca imágenes por filtro</h2>

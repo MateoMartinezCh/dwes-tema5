@@ -38,7 +38,7 @@ if ($_POST && isset($_POST['usuario']) && isset($_POST['clave'])) {
         exit();
     }
     // Preparamos la consulta
-    $sentencia = $mysqli->prepare("SELECT nombre,clave from usuario where nombre = ?");
+    $sentencia = $mysqli->prepare("SELECT id,nombre,clave from usuario where nombre = ?");
     if (!$sentencia) {
         echo "Error: " . $mysqli->error;
         $mysqli->close();
@@ -75,6 +75,7 @@ if ($_POST && isset($_POST['usuario']) && isset($_POST['clave'])) {
     if (($fila = $resultado->fetch_assoc()) != null) {
         if ($fila['nombre'] == $usuario && password_verify($clave, $fila['clave'])) {
             $_SESSION['usuario'] = $usuario;
+            $_SESSION['id'] = $fila['id'];
             echo "<h1>Te has logueado correctamente</h1>";
             echo "<a href='index.php'>Vuelve a la página principal</a>";
             exit();
